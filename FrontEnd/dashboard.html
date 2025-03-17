@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Dashboard</h1>
+        <h2 id="courseTitle"></h2>
+        <h3 id="scheduleInfo"></h3>  <!-- แสดงวันเรียน, เวลาเรียน, ห้องเรียน -->
+    </header>
+
+    <section id="attendanceTable">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>รหัสนักศึกษา</th>
+                    <th>รายชื่อนักศึกษา</th>
+                    <th>สถานะเข้าเรียน</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </section>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

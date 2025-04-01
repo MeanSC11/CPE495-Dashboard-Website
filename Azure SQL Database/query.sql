@@ -233,7 +233,10 @@ DELETE FROM Attendance
 WHERE student_id = 65012466;
 
 insert into Attendance(course_id , student_id , date_check, status_student) VALUES
-('CPE4510201' , 65062264, GETDATE(), 'Late')
+('CPE4510201' , 65015916, GETDATE(), 'Present')
+
+insert into Attendance(course_id , student_id , date_check) VALUES
+('CPE4510201' , 65040153, GETDATE())
 
 
 -- ตารางเก็บใบหน้าที่ไม่รู้จัก

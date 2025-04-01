@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../FrontEnd')));
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 (async () => {
     try {
@@ -21,17 +21,9 @@ const PORT = process.env.PORT || 5001;
 })();
 
 // ✅ เสิร์ฟหน้าเว็บ
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../FrontEnd/index.html'));
-});
-
-app.get('/courses', (req, res) => {
-    res.sendFile(path.join(__dirname, '../FrontEnd/courses.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../FrontEnd/dashboard.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../FrontEnd/index.html')));
+app.get('/courses', (req, res) => res.sendFile(path.join(__dirname, '../FrontEnd/courses.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, '../FrontEnd/dashboard.html')));
 
 // ✅ API: ดึงรายวิชา
 app.get('/api/courses', async (req, res) => {
@@ -44,15 +36,15 @@ app.get('/api/courses', async (req, res) => {
     }
 });
 
-// ✅ API: ดึงรายชื่อและข้อมูลของนักศึกษาที่ลงทะเบียนในรายวิชา
+// ✅ API: ดึงรายชื่อนักศึกษาที่ลงทะเบียนในรายวิชา
 app.get('/api/students/:course_id', async (req, res) => {
     try {
         const { course_id } = req.params;
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('course_id', sql.NVarChar, course_id) // แก้ไขชนิดข้อมูลเป็น NVarChar เพื่อให้ตรงกับ course_id
+            .input('course_id', sql.NVarChar, course_id)
             .query(`
-                SELECT S.student_id, S.student_name
+                SELECT S.student_id, S.student_name 
                 FROM Students S
                 JOIN Enrollment E ON S.student_id = E.student_id
                 WHERE E.course_id = @course_id
@@ -63,13 +55,13 @@ app.get('/api/students/:course_id', async (req, res) => {
     }
 });
 
-// ✅ API: ดึงข้อมูลการเข้าเรียนของนักศึกษา
+// ✅ API: ดึงข้อมูลการเข้าเรียน
 app.get('/api/attendance/:course_id', async (req, res) => {
     try {
         const { course_id } = req.params;
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('course_id', sql.NVarChar, course_id) // ใช้ NVarChar สำหรับ course_id
+            .input('course_id', sql.NVarChar, course_id)
             .query(`
                 SELECT S.student_id, S.student_name, A.date_check, A.status_student
                 FROM Attendance A
@@ -89,7 +81,7 @@ app.get('/api/course-info/:course_id', async (req, res) => {
         const { course_id } = req.params;
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('course_id', sql.NVarChar, course_id) // ใช้ NVarChar สำหรับ course_id
+            .input('course_id', sql.NVarChar, course_id)
             .query(`
                 SELECT C.course_name, C.instructor, C.schedule, C.start_time, C.location_room
                 FROM Courses C
@@ -102,6 +94,4 @@ app.get('/api/course-info/:course_id', async (req, res) => {
 });
 
 // ✅ Start Server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

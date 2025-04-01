@@ -1,7 +1,9 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    margin: 20px;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 20px;
 }
 
 .logo {
@@ -25,4 +27,30 @@ table {
 th, td {
     padding: 10px;
     border: 1px solid #000;
+}
+header h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.button-container button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button-container button:hover {
+    background-color: #c0392b;
 }

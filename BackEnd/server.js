@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../FrontEnd')));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 (async () => {
     try {
@@ -44,35 +44,17 @@ app.get('/api/courses', async (req, res) => {
     }
 });
 
-// ✅ API: ดึง Section ตามรายวิชา
-app.get('/api/sections/:course_id', async (req, res) => {
-    try {
-        const { course_id } = req.params;
-        const pool = await poolPromise;
-        const result = await pool.request()
-            .input('course_id', sql.Int, course_id)
-            .query(`
-                SELECT course_id, day_of_week, start_time, location_room 
-                FROM Schedules 
-                WHERE course_id = @course_id
-            `);
-        res.json(result.recordset);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ✅ API: ดึงรายชื่อนักเรียนที่ลงทะเบียนในรายวิชา
+// ✅ API: ดึงรายชื่อและข้อมูลของนักศึกษาที่ลงทะเบียนในรายวิชา
 app.get('/api/students/:course_id', async (req, res) => {
     try {
         const { course_id } = req.params;
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('course_id', sql.Int, course_id)
+            .input('course_id', sql.NVarChar, course_id) // แก้ไขชนิดข้อมูลเป็น NVarChar เพื่อให้ตรงกับ course_id
             .query(`
-                SELECT S.Student_id, S.first_name, S.last_name
+                SELECT S.student_id, S.student_name
                 FROM Students S
-                JOIN Enrollments E ON S.Student_id = E.Student_id
+                JOIN Enrollment E ON S.student_id = E.student_id
                 WHERE E.course_id = @course_id
             `);
         res.json(result.recordset);
@@ -87,13 +69,13 @@ app.get('/api/attendance/:course_id', async (req, res) => {
         const { course_id } = req.params;
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('course_id', sql.Int, course_id)
+            .input('course_id', sql.NVarChar, course_id) // ใช้ NVarChar สำหรับ course_id
             .query(`
-                SELECT S.Student_id, S.first_name, S.last_name, A.status_student
-                FROM Students S
-                JOIN Enrollments E ON S.Student_id = E.Student_id
-                JOIN Attendance A ON E.enrollment_id = A.enrollment_id
+                SELECT S.student_id, S.student_name, A.date_check, A.status_student
+                FROM Attendance A
+                JOIN Students S ON A.student_id = S.student_id
                 WHERE A.course_id = @course_id
+                ORDER BY A.date_check
             `);
         res.json(result.recordset);
     } catch (error) {
@@ -107,15 +89,10 @@ app.get('/api/course-info/:course_id', async (req, res) => {
         const { course_id } = req.params;
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('course_id', sql.Int, course_id)
+            .input('course_id', sql.NVarChar, course_id) // ใช้ NVarChar สำหรับ course_id
             .query(`
-                SELECT C.course_name, 
-                C.instructor, 
-                S.day_of_week, 
-                S.start_time, 
-                S.location_room
+                SELECT C.course_name, C.instructor, C.schedule, C.start_time, C.location_room
                 FROM Courses C
-                JOIN Schedules S ON C.course_id = S.course_id
                 WHERE C.course_id = @course_id
             `);
         res.json(result.recordset);

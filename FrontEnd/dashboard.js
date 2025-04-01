@@ -1,45 +1,35 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const courseId = urlParams.get("course");
+    const scheduleId = urlParams.get("schedule");
 
-    if (!courseId) {
-        alert("ไม่มีข้อมูลรายวิชา กรุณาเลือกใหม่");
-        window.location.href = "/courses";
-        return;
+    if (courseId && scheduleId) {
+        loadDashboard(courseId, scheduleId);
+    } else {
+        document.getElementById("courseTitle").innerText = "ข้อมูลไม่ถูกต้อง";
     }
+});
 
-    const courseTitle = document.getElementById("courseTitle");
-    const scheduleInfo = document.getElementById("scheduleInfo");
-    const tableBody = document.getElementById("tableBody");
-
+async function loadDashboard(courseId, scheduleId) {
     try {
-        // 📌 ดึงข้อมูลรายวิชา
         const courseResponse = await fetch(`/api/course-info/${courseId}`);
         const courseData = await courseResponse.json();
         
-        if (courseData.length === 0) {
-            alert("ไม่พบข้อมูลรายวิชา");
-            window.location.href = "/courses";
-            return;
-        }
+        const scheduleResponse = await fetch(`/api/schedules/${scheduleId}`);
+        const scheduleData = await scheduleResponse.json();
 
-        // 📌 ดึงข้อมูลนักศึกษา
-        const studentResponse = await fetch(`/api/students/${courseId}`);
-        const students = await studentResponse.json();
+        const courseTitle = document.getElementById("courseTitle");
+        const scheduleInfo = document.getElementById("scheduleInfo");
+        const tableBody = document.getElementById("tableBody");
 
-        // 📌 ดึงข้อมูลการเข้าเรียน
-        const attendanceResponse = await fetch(`/api/attendance/${courseId}`);
+        courseTitle.textContent = `รายวิชา: ${courseData.course_name}`;
+        scheduleInfo.textContent = `วันเรียน: ${scheduleData.day_of_week}, เวลาเรียน: ${scheduleData.start_time}, ห้องเรียน: ${scheduleData.location_room}`;
+        
+        // ดึงข้อมูลการเข้าเรียนและแสดงในตาราง
+        const attendanceResponse = await fetch(`/api/attendance/${scheduleId}`);
         const attendanceData = await attendanceResponse.json();
 
-        // ✅ แสดงชื่อรายวิชา และผู้สอน
-        const { course_name, instructor, day_of_week, start_time, location_room } = courseData[0];
-        courseTitle.textContent = `${course_name} - ${instructor}`;
-        scheduleInfo.textContent = `วันเรียน: ${day_of_week}, เวลา: ${start_time}, ห้องเรียน: ${location_room}`;
-
-        // ✅ เคลียร์ข้อมูลตารางก่อนเติมข้อมูลใหม่
-        tableBody.innerHTML = "";
-
-        students.forEach(student => {
+        attendanceData.forEach(student => {
             const row = document.createElement("tr");
 
             const studentIdCell = document.createElement("td");
@@ -51,14 +41,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             row.appendChild(nameCell);
 
             const statusCell = document.createElement("td");
-            const attendance = attendanceData.find(a => a.Student_id === student.Student_id);
-            statusCell.textContent = attendance ? attendance.status_student : "Absent";
+            statusCell.textContent = student.status_student || "Absent";
             row.appendChild(statusCell);
 
             tableBody.appendChild(row);
         });
+
     } catch (error) {
-        console.error("Error loading data:", error);
-        alert("เกิดข้อผิดพลาดในการโหลดข้อมูล");
+        console.error("Error loading dashboard data:", error);
     }
-});
+}

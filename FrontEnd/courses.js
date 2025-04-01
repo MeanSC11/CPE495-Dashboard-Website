@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const courseList = document.getElementById("courseList");
+    const sectionList = document.getElementById("sectionList");
 
     try {
+        // 📌 ดึงข้อมูลรายวิชา
         const response = await fetch("/api/courses");
         const courses = await response.json();
 
@@ -9,14 +11,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             const btn = document.createElement("button");
             btn.textContent = course.course_name;
             btn.onclick = async () => {
-                const sectionResponse = await fetch(`/api/sections/${course.course_id}`);
+                sectionList.innerHTML = "";  // ล้างข้อมูลเก่า
+                const sectionResponse = await fetch(`/api/schedules/${course.course_id}`);
                 const sections = await sectionResponse.json();
 
                 if (sections.length > 0) {
-                    const section = sections[0];  // เลือก Section แรก
-                    window.location.href = `/dashboard?course=${course.course_id}`;
+                    sectionList.style.display = "flex";
+                    sections.forEach(section => {
+                        const secBtn = document.createElement("button");
+                        secBtn.textContent = `SEC ${section.schedule_id}`;
+                        secBtn.onclick = () => {
+                            // ➡️ เปลี่ยนหน้าไปที่ Dashboard พร้อมแนบค่า course_id และ schedule_id
+                            window.location.href = `dashboard.html?course=${course.course_id}&schedule=${section.schedule_id}`;
+                        };
+                        sectionList.appendChild(secBtn);
+                    });
                 } else {
                     alert("ไม่มี Section สำหรับรายวิชานี้");
+                    sectionList.style.display = "none";
                 }
             };
             courseList.appendChild(btn);

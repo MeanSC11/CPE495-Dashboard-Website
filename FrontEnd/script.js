@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadCourses() {
     try {
-        const response = await fetch("http://localhost:5000/courses");
+        const response = await fetch("http://localhost:5000/api/courses");
         const courses = await response.json();
 
         let listHtml = '<h2>เลือกรายวิชา</h2><ul>';
@@ -33,12 +33,12 @@ async function selectCourse(event) {
     const courseId = event.target.getAttribute("data-course");
 
     try {
-        const response = await fetch(`http://localhost:5000/schedules/${courseId}`);
+        const response = await fetch(`http://localhost:5000/api/schedules/${courseId}`);
         const sections = await response.json();
 
         let listHtml = '<h2>เลือก Section</h2><ul>';
         sections.forEach(sec => {
-            listHtml += `<li><button class="section" data-course="${courseId}" data-schedule="${sec.schedule_id}">SEC${sec.schedule_id}</button></li>`;
+            listHtml += `<li><button class="section" data-course="${courseId}" data-schedule="${sec.schedule_id}">${sec.day_of_week} เวลา ${sec.start_time} ห้อง ${sec.location_room}</button></li>`;
         });
         listHtml += '</ul>';
 
@@ -57,29 +57,35 @@ function selectSection(event) {
     const courseId = event.target.getAttribute("data-course");
     const scheduleId = event.target.getAttribute("data-schedule");
 
-    window.location.href = `dashboard.html?course=${courseId}&schedule=${scheduleId}`;
+    window.location.href = `dashboard.html?course_id=${courseId}&schedule_id=${scheduleId}`;
 }
 
 async function loadDashboard() {
     const urlParams = new URLSearchParams(window.location.search);
-    const courseId = urlParams.get("course");
-    const scheduleId = urlParams.get("schedule");
+    const courseId = urlParams.get("course_id");
+    const scheduleId = urlParams.get("schedule_id");
 
     if (courseId && scheduleId) {
         await loadCourseInfo(courseId);
         await loadAttendance(scheduleId);
     } else {
-        document.getElementById("courseTitle").innerText = "Invalid Course or Section";
+        document.getElementById("courseTitle").innerText = "ไม่พบข้อมูลรายวิชา";
     }
 }
 
 async function loadCourseInfo(courseId) {
     try {
-        const response = await fetch(`http://localhost:5000/course/${courseId}`);
-        const course = await response.json();
+        const response = await fetch(`http://localhost:5000/api/course-info/${courseId}`);
+        const courseData = await response.json();
 
-        document.getElementById("courseTitle").innerText = `${course.course_name} SEC${course.course_id}`;
-        document.getElementById("instructorName").innerText = `อาจารย์ผู้สอน: ${course.instructor}`;
+        if (courseData.length === 0) {
+            document.getElementById("courseTitle").innerText = "ไม่พบข้อมูลรายวิชา";
+            return;
+        }
+
+        const { course_name, instructor } = courseData[0];
+
+        document.getElementById("courseTitle").innerText = `${course_name} - อาจารย์ ${instructor}`;
     } catch (error) {
         console.error("Error loading course info:", error);
     }
@@ -87,7 +93,7 @@ async function loadCourseInfo(courseId) {
 
 async function loadAttendance(scheduleId) {
     try {
-        const response = await fetch(`http://localhost:5000/attendance/${scheduleId}`);
+        const response = await fetch(`http://localhost:5000/api/attendance/${scheduleId}`);
         const students = await response.json();
 
         let tableHtml = "";
@@ -95,7 +101,7 @@ async function loadAttendance(scheduleId) {
             tableHtml += `<tr>
                 <td>${student.Student_id}</td>
                 <td>${student.first_name} ${student.last_name}</td>
-                <td>${student.checkin_status}</td>
+                <td>${student.status_student}</td>
             </tr>`;
         });
         document.getElementById("tableBody").innerHTML = tableHtml;

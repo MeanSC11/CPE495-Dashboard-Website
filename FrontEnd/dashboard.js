@@ -50,16 +50,28 @@ async function loadAttendance(courseId) {
                 <td>${student.student_id}</td>
                 <td>${student.student_name}</td>`;
 
+            let totalDays = 0;
+            let attendedDays = 0;
+
             // ✅ แสดงข้อมูลการเข้าเรียน 15 ครั้ง
             for (let i = 1; i <= 15; i++) {
                 let status = student[`attendance_${i}`] || "N/A";
                 let statusClass = getStatusClass(status);
+
+                // ✅ นับจำนวนวันที่เช็คชื่อและจำนวนวันที่มาเรียน
+                if (status !== "N/A") {
+                    totalDays++;
+                    if (status === "Present" || status === "Late") {
+                        attendedDays++;
+                    }
+                }
+
                 rowHtml += `<td class="${statusClass}">${status}</td>`;
             }
 
-            // ✅ เพิ่มเปอร์เซ็นต์การเข้าเรียน
-            const percentage = student.attendance_percentage !== null 
-                ? student.attendance_percentage.toFixed(2) + "%" 
+            // ✅ คำนวณเปอร์เซ็นต์การเข้าเรียน
+            const percentage = totalDays > 0 
+                ? ((attendedDays / totalDays) * 100).toFixed(2) + "%" 
                 : "0.00%";
             rowHtml += `<td>${percentage}</td></tr>`;
 

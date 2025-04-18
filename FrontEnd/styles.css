@@ -1,9 +1,29 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background-color: #ffffff;
+    background: #ffffff;
     margin: 0;
     padding: 20px;
+    color: #333;
+}
+
+header {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 28px;
+    color: #b03a76;
+    font-weight: bold;
+}
+
+header h2, header h3 {
+    color: #7a4988;
+    font-weight: normal;
 }
 
 .logo {
@@ -12,25 +32,14 @@ body {
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 12px 24px;
+    font-size: 18px;
     margin: 10px;
     cursor: pointer;
-}
-
-table {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 10px;
-    border: 1px solid #000;
-}
-header h1 {
-    font-size: 24px;
-    color: #333;
+    border-radius: 6px;
+    border: none;
+    transition: all 0.3s ease;
+    font-weight: bold;
 }
 
 .button-container {
@@ -42,15 +51,78 @@ header h1 {
 }
 
 .button-container button {
-    background-color: #e74c3c;
+    background: linear-gradient(135deg, #d86ba5, #fa75c9);
     color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .button-container button:hover {
-    background-color: #c0392b;
+    background: linear-gradient(135deg, #e285b8, #c062b2);
 }
+
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+th, td {
+    padding: 14px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 16px;
+}
+
+th {
+    background: #7a4988;
+    color: white;
+    font-weight: bold;
+}
+
+td {
+    background: #f9eef5;
+}
+
+/* ปรับความกว้างของคอลัมน์ "รายชื่อนักศึกษา" */
+th:nth-child(2), td:nth-child(2) {
+    width: 250px; /* ปรับให้กว้างขึ้น */
+    text-align: center;
+    padding-left: 15px;
+}
+
+/* ให้คอลัมน์ของสถานะเข้าเรียนแสดงเป็นสีเฉยๆ ไม่มีตัวหนังสือ */
+td.present,
+td.late,
+td.absent {
+    text-indent: -9999px;  /* ซ่อนข้อความ */
+    position: relative;
+}
+
+td.present::after,
+td.late::after,
+td.absent::after {
+    content: ''; /* ลบข้อความ */
+    display: block;
+    width: 100%;
+    height: 20px;
+    border-radius: 5px;
+}
+
+/* สีสถานะเข้าเรียน */
+.present::after {
+    background-color: #28a745; /* เขียว */
+}
+
+.late::after {
+    background-color: #ffc107; /* เหลือง */
+}
+
+.absent::after {
+    background-color: #dc3545; /* แดง */
+}
+
+
